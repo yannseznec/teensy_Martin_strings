@@ -23,6 +23,7 @@ things that are kind of dumb in this code:
 int const numPins = 1; //  number of analog inputs 
 int currentVal[numPins];
 int newVal[numPins];
+int newValCal[numPins];
 int analogPins[] = {  
   19,20,21   // which analog pins to use (19 is pull, 20/21 are x/y)
 };
@@ -81,6 +82,9 @@ void setup() {
   digitalWrite(13, HIGH);
 
   Serial.begin(38400);
+  for (int i = 0; i < numPins; i++) {
+  newValCal[i] = analogRead(i);
+    }
 
 }
 
@@ -128,15 +132,19 @@ usbMIDI.sendNoteOff(touchpitch[i], 100, channel);
     }  
   }
 
-// analog pins
+// analog pins (string)
 
   for (int i = 0; i < numPins; i++) {
 
     newVal[i] = analogRead(analogPins[i]);
 
     if (abs(newVal[i] - currentVal[i])>3) {
-      usbMIDI.sendControlChange(i+1, newVal[i]>>3, channel); 
-      currentVal[i] = newVal[i];
+   // original code:
+   //   usbMIDI.sendControlChange(i+1, newVal[i]>>3, channel); 
+   //   currentVal[i] = newVal[i];
+   // new code:
+   usbMIDI.sendControlChange(i+1, constrain(map(newVal[i], newValCal[i], 1023, 0, 127),0,127), channel); 
+      currentVal[1] = newVal[1];
     }  
   }
   
